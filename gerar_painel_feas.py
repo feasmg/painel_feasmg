@@ -4,17 +4,17 @@ import os, json, warnings, re
 from datetime import date
 warnings.filterwarnings('ignore')
 
-BASE_PATH   = r"C:\Users\catha\OneDrive - CAMG\SGFEAS - FEAS_BI"
-SCRIPT_PATH = r"C:\Users\catha\OneDrive - CAMG\SGFEAS - FEAS_BI\FEAS_Scripts"
+# Caminhos relativos para GitHub Actions
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 UO = 4251
 
 ARQ = {
-    "orc": os.path.join(BASE_PATH, "RAW_Orcamento", "orcamento.xlsx"),
-    "des": os.path.join(BASE_PATH, "RAW_Despesa",   "despesa.xlsx"),
-    "qlik": os.path.join(BASE_PATH, "PCASP_QlikView","Saldos_Contas FEAS.xls"),
+    "orc":  os.path.join(SCRIPT_DIR, "orcamento.xlsx"),
+    "des":  os.path.join(SCRIPT_DIR, "despesa.xlsx"),
+    "qlik": os.path.join(SCRIPT_DIR, "Saldos_Contas FEAS.xls"),
 }
-HTML_SAIDA = os.path.join(BASE_PATH, "painel_feas.html")
-TEMPLATE   = os.path.join(SCRIPT_PATH, "template_feas.html")
+HTML_SAIDA = os.path.join(SCRIPT_DIR, "index.html")
+TEMPLATE   = os.path.join(SCRIPT_DIR, "template_feas.html")
 
 def ler(path, header=3):
     df = pd.read_excel(path, header=header)
