@@ -547,7 +547,10 @@ function renderE(){
   const tE=rows.reduce((s,r)=>s+r.emp,0);
   const tL=rows.reduce((s,r)=>s+r.liq,0);
   const tP=rows.reduce((s,r)=>s+r.pago,0);
-  const autRef=DORC.filter(d=>matchMS('ms-e-acao',d.acao)&&matchMS('ms-e-fonte',d.fonte)).reduce((s,d)=>s+d.aut,0);
+  const autRef=DORC.filter(d=>
+    matchMS('ms-e-acao',d.acao)&&matchMS('ms-e-fonte',d.fonte)&&
+    matchMS('ms-e-grupo',d.grupo)&&matchMS('ms-e-mod',d.mod)
+  ).reduce((s,d)=>s+d.aut,0);
   document.getElementById('e-emp').textContent=fmtM(tE);
   document.getElementById('e-liq').textContent=fmtM(tL);
   document.getElementById('e-pago').textContent=fmtM(tP);
@@ -559,11 +562,21 @@ function renderE(){
   document.getElementById('thead-e').innerHTML='<tr>'+dims.map(d=>`<th>${dlbls[d]||d}</th>`).join('')+'<th>Empenhado (R$)</th><th>% emp/aut</th><th>Liquidado (R$)</th><th>% liq/aut</th><th>Pago (R$)</th><th>% pago/aut</th></tr>';
   document.getElementById('tbody-e').innerHTML=rows.length
     ?rows.map(r=>{
-        const pE=autRef>0?r.emp/autRef:0;
+        const autLinha=DORC.filter(d=>{
+          let ok=true;
+          if(dims.includes('acao'))ok=ok&&String(d.acao)===String(r.dims[dims.indexOf('acao')]);
+          if(dims.includes('fonte'))ok=ok&&String(d.fonte)===String(r.dims[dims.indexOf('fonte')]);
+          if(dims.includes('grupo'))ok=ok&&String(d.grupo)===String(r.dims[dims.indexOf('grupo')]);
+          if(dims.includes('mod'))ok=ok&&String(d.mod)===String(r.dims[dims.indexOf('mod')]);
+          if(!matchMS('ms-e-acao',d.acao)||!matchMS('ms-e-fonte',d.fonte)||
+             !matchMS('ms-e-grupo',d.grupo)||!matchMS('ms-e-mod',d.mod))ok=false;
+          return ok;
+        }).reduce((s,d)=>s+d.aut,0)||autRef;
+        const pE=autLinha>0?r.emp/autLinha:0;
         return'<tr>'+r.dims.map(v=>`<td>${v}</td>`).join('')+
-          `<td>${fmtT(r.emp)}</td><td class="${corP(pE)}">${pct(r.emp,autRef)}</td>`+
-          `<td>${fmtT(r.liq)}</td><td>${pct(r.liq,autRef)}</td>`+
-          `<td>${fmtT(r.pago)}</td><td>${pct(r.pago,autRef)}</td></tr>`;
+          `<td>${fmtT(r.emp)}</td><td class="${corP(pE)}">${pct(r.emp,autLinha)}</td>`+
+          `<td>${fmtT(r.liq)}</td><td>${pct(r.liq,autLinha)}</td>`+
+          `<td>${fmtT(r.pago)}</td><td>${pct(r.pago,autLinha)}</td></tr>`;
       }).join('')
     :`<tr><td colspan="${dims.length+6}" style="text-align:center;color:var(--text3);padding:16px">Nenhum resultado</td></tr>`;
 }
